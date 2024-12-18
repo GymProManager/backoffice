@@ -36,6 +36,7 @@ import {
       } from "../../../components/ui/dropdown-menu"
 import { Button } from "../../../components/ui/button"
 import ImportDialog from "@/components/import/import";
+import ModalPlayer from "@/components/player/player";
 
   interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -54,7 +55,6 @@ import ImportDialog from "@/components/import/import";
         pageIndex: 0,
         pageSize: 10,
       })
-    const [position, setPosition] = React.useState("bottom");
 
     const table = useReactTable({
         data,
@@ -179,47 +179,48 @@ import ImportDialog from "@/components/import/import";
             {table.getFilteredRowModel().rows.length} fila(s) seleccionada(s).
         </div> 
         <div className="flex items-center justify-end space-x-2">
-                <span className="flex items-center gap-1 mr-12">
-                    <div className="text-sm">Página</div>
-                    <span className="text-sm">
-                        {table.getState().pagination.pageIndex + 1} de {' '}
-                        {table.getPageCount()}
-                    </span>
+            <span className="flex items-center gap-1 mr-12">
+                <div className="text-sm">Página</div>
+                <span className="text-sm">
+                    {table.getState().pagination.pageIndex + 1} de {' '}
+                    {table.getPageCount()}
                 </span>
-                <Button
-                    className="border rounded p-1"
-                    variant="outline"
-                    onClick={() => table.setPageIndex(0)}
-                    disabled={!table.getCanPreviousPage()}
-                    >
-                    <ChevronsLeft size={16}/>                  
-                </Button>        
-                <Button
+            </span>
+            <Button
+                className="border rounded p-1"
                 variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
+                onClick={() => table.setPageIndex(0)}
                 disabled={!table.getCanPreviousPage()}
                 >
-                    <ChevronLeft size={16}/>
-                </Button>
-                <Button
+                <ChevronsLeft size={16}/>                  
+            </Button>        
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+            >
+                <ChevronLeft size={16}/>
+            </Button>
+            <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+            >
+            <ChevronRight  size={16}/>
+            </Button>
+            <Button
+                className="border rounded p-1"
                 variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
+                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                 disabled={!table.getCanNextPage()}
                 >
-                <ChevronRight  size={16}/>
-                </Button>
-                <Button
-                    className="border rounded p-1"
-                    variant="outline"
-                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                    disabled={!table.getCanNextPage()}
-                    >
-                   <ChevronsRight size={16}/>   
-                </Button>              
+                <ChevronsRight size={16}/>   
+            </Button>              
         </div>       
       </div>
+
       </>        
     )
 

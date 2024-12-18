@@ -13,6 +13,7 @@ import { ExerciseUseCases } from '@/core/UseCases/ExerciseUseCases';
 import { ApiExerciseRepository } from '@/infrastructure/repositories/ApiExerciseRepository';
 import { Exercise } from '@/core/entities/Exercise';
 import { columns } from './columns';
+import ModalPlayer from '@/components/player/player';
 
 function getToken() {
   const tokenString = sessionStorage.getItem('token') || "{}";
