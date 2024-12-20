@@ -14,9 +14,11 @@ import { Toaster } from "./components/ui/toaster"
 import ExerciseEditPage from './app/pages/exercises/edit/page';
 import Login from './app/pages/Login';
 import Logout from './app/pages/Logout';
+import Members from './app/pages/members/Members';
+import MemberNewPage from './app/pages/members/new/page';
+import MemberEditPage from './app/pages/members/edit/page';
 
 function setToken(userToken:any) {
-  console.log("setToken", JSON.stringify(userToken));
   sessionStorage.setItem('token', JSON.stringify(userToken));
 }
 
@@ -58,6 +60,9 @@ function App() {
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/exercises/new" element={<ExerciseNewPage />} />
             <Route path="/exercises/edit/:id" element={<ExerciseEditPage />} />
+            <Route path="/members" element={<Members />} />
+            <Route path="/members/new" element={<MemberNewPage />} />
+            <Route path="/members/edit/:id" element={<MemberEditPage />} />
             <Route path="/logout" element={<Logout />} />
           </Routes> 
           <Toaster />  

@@ -27,7 +27,7 @@ import {
     menus: Menu[];
   };
   
-  export function getMenuList(pathname: string): Group[] {
+  export function getMenuList(pathname: string = "/"): Group[] {
     return [
       {
         groupLabel: "",
@@ -133,7 +133,7 @@ import {
                 label: "Grupos"
               },              
               {
-                href: "/list",
+                href: "/members",
                 label: "Listado"
               },
               {

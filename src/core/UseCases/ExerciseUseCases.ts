@@ -26,7 +26,7 @@ export class ExerciseUseCases {
     return this.exerciseRepository.delete(id);
   }
 
-  importExercise(exercise: Exercise): Promise<Exercise> {
+  importExercise(exercise: Exercise): Promise<any> {
     return this.exerciseRepository.import(exercise);
   }
 }

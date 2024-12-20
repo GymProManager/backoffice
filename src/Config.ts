@@ -7,7 +7,7 @@ export  const PRODUCCION = {
 export  const LOCAL = { 
     MODE: 'DEV',
     API_URL: 'http://localhost:4003/api',
-    IMAGES_URL: 'http://localhost:4003/uploads/images'
+    IMAGES_URL: 'http://localhost:4003'
 }
 
 export  const CONFIG = LOCAL;
