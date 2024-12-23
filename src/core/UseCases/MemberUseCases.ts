@@ -4,8 +4,8 @@ import { MemberRepository } from '../interfaces/MemberRepository';
 export class MemberUseCases {
   constructor(private exerciseRepository: MemberRepository) {}
 
-  getAllMermbers(): Promise<Member[]> {
-    const data:any = this.exerciseRepository.getAll();
+  getAllMermbers(filter: any): Promise<Member[]> {
+    const data:any = this.exerciseRepository.getAll(filter);
     return data;
   }
 

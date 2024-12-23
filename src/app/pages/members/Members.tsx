@@ -22,6 +22,7 @@ function getToken() {
 
 const MermbersPage: React.FC = () => {
   const [product, setProduct] = useState<Exercise[]>([]);
+  const [filter, setFilter] = useState<any>("enable");
    
   const memberUseCases = new MemberUseCases(new ApiMemberRepository());
   const token = getToken();
@@ -30,11 +31,23 @@ const MermbersPage: React.FC = () => {
     }
 
     useEffect(() => { const fetchCategories = async () => { 
-      const data: any = await memberUseCases.getAllMermbers();
+      const data: any = await memberUseCases.getAllMermbers({});
       setProduct(data);
     };
       fetchCategories();
     },[]);
+
+    const hanleFilterMember = async (value: string) => {
+      setFilter(value);
+    };
+
+    useEffect(() => { 
+      const fetchCategories = async () => { 
+        const data: any = await memberUseCases.getAllMermbers(filter);
+        setProduct(data);
+      };
+      fetchCategories();
+    },[filter]);
 
     return (
         <ContentLayout title='Socios'>
@@ -53,7 +66,7 @@ const MermbersPage: React.FC = () => {
         </Breadcrumb>
 
         <div className="w-full px-2">
-            <DataTable columns={columns} data={product} />
+            <DataTable columns={columns} data={product} onChangeFilter={hanleFilterMember}/>
         </div>
         </ContentLayout>
     ); 

@@ -23,7 +23,7 @@ import {
     TableRow
   } from "@/components/ui/table"
 
-    import React from "react"
+    import React, { useState } from "react"
     import { Input } from "@/components/ui/input"
     import {
         DropdownMenu,
@@ -34,16 +34,19 @@ import {
         DropdownMenuSeparator,
       } from "../../../components/ui/dropdown-menu"
 import { Button } from "../../../components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-  interface DataTableProps<TData, TValue> {
+  interface DataTableProps<onChangeFilter,TData, TValue> {
+    onChangeFilter: (value: string) => void, 
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
   }
 
-  export function DataTable<TData, TValue>({
+  export function DataTable<onChangeFilter,TData, TValue>({
+    onChangeFilter,
     columns,
     data,
-  }: DataTableProps<TData, TValue>) {
+  }: DataTableProps<onChangeFilter,TData, TValue>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] =  React.useState<VisibilityState>({})
@@ -52,6 +55,7 @@ import { Button } from "../../../components/ui/button"
         pageIndex: 0,
         pageSize: 10,
       })
+    const [filterMember, setFilterMember] = useState('enable');
 
     const table = useReactTable({
         data,
@@ -71,20 +75,40 @@ import { Button } from "../../../components/ui/button"
           rowSelection,
         },
     })
-
+    const hanleFilterMember = (value: string) => {
+       setFilterMember(value);
+       onChangeFilter(value);
+    };
 
     return (
       <>
-       <div className="flex items-center justify-between py-4">
-        <Input
-            placeholder="Filtro de Socios..."
-            value={(table.getColumn("nombre")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-            table.getColumn("nombre")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-        />
+       <div className="flex items-center justify-between py-4 w-full">
+          <div className="flex items-center gap-2">
+            <Input
+                placeholder="Filtro de Socios..."
+                value={(table.getColumn("nombre")?.getFilterValue() as string) ?? ""}
+                onChange={(event) =>
+                table.getColumn("nombre")?.setFilterValue(event.target.value)
+                }
+                className="max-w-sm"
+            />
+          </div>
         <div className="flex gap-2">
+                <span className="text-sm font-bold mt-2">Filtrar por: </span>
+                <Select value= {filterMember}
+                 onValueChange={(value) => {
+                  hanleFilterMember(value);
+                  }}
+                >
+                    <SelectTrigger className="w-[180px]" >
+                        <SelectValue placeholder="Socios Activos" />
+                    </SelectTrigger>
+                    <SelectContent >
+                        <SelectItem value="enable">Socios Activos</SelectItem>
+                        <SelectItem value="disabled">Socios de Baja</SelectItem>
+                        <SelectItem value="all">Todos</SelectItem>
+                    </SelectContent>
+                </Select>          
             <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="ml-auto">

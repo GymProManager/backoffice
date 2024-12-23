@@ -4,8 +4,12 @@ import { Member } from '@/core/entities/Member';
 import { MemberRepository } from '@/core/interfaces/MemberRepository';
 
 export class ApiMemberRepository implements MemberRepository {
-    async getAll(): Promise<Member[]> { 
-        const response:any  = await axios.get<Member[]>(`${CONFIG.API_URL}/socio`); 
+    async getAll(filter: any): Promise<Member[]> {
+        let options: any = {};
+        if (filter != '') {
+            options = { params: { status: filter } };
+        }
+        const response:any  = await axios.get<Member[]>(`${CONFIG.API_URL}/socio`, options); 
         return response.data;
      }
     async getById(id: string): Promise<Member> {
@@ -17,11 +21,14 @@ export class ApiMemberRepository implements MemberRepository {
             member.perfil = member.perfil_socio;
             return member;
         });
-        return  adapterData[0]; }
+        return  adapterData[0]; 
+    }
+
     async create(exercise: Member): Promise<Member> { 
       const result =  await axios.post(`${CONFIG.API_URL}/socio/`, exercise); 
       return result.data;
     } 
+
     async update(id: string, member: Member): Promise<void> { 
         try {
             await axios.put(`${CONFIG.API_URL}/socio/${id}`, member); 
@@ -33,6 +40,7 @@ export class ApiMemberRepository implements MemberRepository {
     async delete(id: string): Promise<void> {
          await axios.delete(`${CONFIG.API_URL}/socio/${id}`);
     }
+    
     async import(member: Member): Promise<Member | string> { 
         try {
             const result =  await axios.post(`${CONFIG.API_URL}/socio/:id`, member); 

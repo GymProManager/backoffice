@@ -54,7 +54,6 @@ const ExerciseFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
 
     useEffect(() => {
         perfilsUseCases.getAll().then(result => {
-            console.log("result", result);
             setPerfil(result);
         })
     },[])
@@ -127,10 +126,11 @@ const ExerciseFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
           const newMember: Member = {
             nombre: data.firstname,
             apellidos: data.lastname,
-            fecha_inicio:  "",
-            fecha_alta: "",
+            fecha_inicio:  data.dateStart,
+            fecha_alta: data.dateEnd,
             perfil_socio: data.perfil,
           }
+
           const _image: Imagens = {
             miniature: data.miniature
           }
@@ -141,7 +141,14 @@ const ExerciseFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
           } else {
             await memberUseCases.updateMermber(param.id,newMember);
           }
-          window.location.href = `/members`;
+          try {
+            await mediaImageUseCases.uploadImage("member", id, _image);  
+          } catch (error) {
+            console.log("error", error);
+          } finally {
+            window.location.href = `/members`;
+          }
+
       }
       
       const { getRootProps:getRootProps, getInputProps:getInputProps, isDragActive:isDragActive,fileRejections :fileRejections } =
@@ -186,6 +193,7 @@ const ExerciseFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
         <Form {...form}>     
                 <form onSubmit={form.handleSubmit(onSubmit)}>              
             <div className='flex items-center justify-between border-b-[1px] pb-4'>
+               
                 <div className='flex items-center gap-4'>
                     <LinkButton to="/members"><ChevronLeft size={16} className='p-0'/></LinkButton>
                     <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">{title} socio</h1>
@@ -241,7 +249,7 @@ const ExerciseFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
                                                     <FormItem>
                                                     <FormLabel>Fecha de Inicio</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="mm/dd/yyyy" onChange={field.onChange} defaultValue={ field.value }/>
+                                                        <Input type="date" placeholder="dd/mm/yyyy" onChange={field.onChange} defaultValue={ field.value }/>
                                                     </FormControl>
                                                     <FormMessage />
                                                     </FormItem>
@@ -256,7 +264,7 @@ const ExerciseFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
                                                     <FormItem>
                                                     <FormLabel>Fecha de alta</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="mm/dd/yyyy" onChange={field.onChange} defaultValue={ field.value }/>
+                                                        <Input type="date"  placeholder="dd/mm/yyyy" onChange={field.onChange} defaultValue={ field.value }/>
                                                     </FormControl>
                                                     <FormMessage />
                                                     </FormItem>
