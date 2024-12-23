@@ -81,7 +81,7 @@ export default function Login({ setToken }: { setToken: any }) {
                         <FormItem>
                             <FormLabel>Contraseña</FormLabel>
                             <FormControl>
-                                <Input placeholder="Contraseña" onChange={field.onChange} defaultValue={field.value}/>
+                                <Input type="password" placeholder="Contraseña" onChange={field.onChange} defaultValue={field.value}/>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
