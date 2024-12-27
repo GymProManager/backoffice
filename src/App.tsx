@@ -17,6 +17,9 @@ import Logout from './app/pages/Logout';
 import Members from './app/pages/members/Members';
 import MemberNewPage from './app/pages/members/new/page';
 import MemberEditPage from './app/pages/members/edit/page';
+import Profiles from './app/pages/profiles/Profiles';
+import ProfileMemberEditPage from './app/pages/profiles/edit/page';
+import ProfileNewPage from './app/pages/profiles/new/page';
 
 function setToken(userToken:any) {
   sessionStorage.setItem('token', JSON.stringify(userToken));
@@ -61,6 +64,9 @@ function App() {
             <Route path="/exercises/new" element={<ExerciseNewPage />} />
             <Route path="/exercises/edit/:id" element={<ExerciseEditPage />} />
             <Route path="/members" element={<Members />} />
+            <Route path="/profiles" element={<Profiles />} />
+            <Route path="/profiles/new" element={<ProfileNewPage />} />
+            <Route path="/profiles/edit/:id" element={<ProfileMemberEditPage />} />
             <Route path="/members/new" element={<MemberNewPage />} />
             <Route path="/members/edit/:id" element={<MemberEditPage />} />
             <Route path="/logout" element={<Logout />} />
