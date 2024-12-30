@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import './App.css'
 import { useStore } from './hooks/use-store';
 import { useSidebar } from './hooks/use-sidebar';
@@ -20,6 +19,9 @@ import MemberEditPage from './app/pages/members/edit/page';
 import Profiles from './app/pages/profiles/Profiles';
 import ProfileMemberEditPage from './app/pages/profiles/edit/page';
 import ProfileNewPage from './app/pages/profiles/new/page';
+import Employees from '@/app/pages/employees/components/Employees';
+import EmployeeNewPage from '@/app/pages/employees/components/new/page';
+import EmployeeEditPage from '@/app/pages/employees/components/edit/page';
 
 function setToken(userToken:any) {
   sessionStorage.setItem('token', JSON.stringify(userToken));
@@ -63,12 +65,17 @@ function App() {
             <Route path="/exercises" element={<Exercises />} />
             <Route path="/exercises/new" element={<ExerciseNewPage />} />
             <Route path="/exercises/edit/:id" element={<ExerciseEditPage />} />
-            <Route path="/members" element={<Members />} />
             <Route path="/profiles" element={<Profiles />} />
             <Route path="/profiles/new" element={<ProfileNewPage />} />
             <Route path="/profiles/edit/:id" element={<ProfileMemberEditPage />} />
+            <Route path="/members" element={<Members />} />            
             <Route path="/members/new" element={<MemberNewPage />} />
             <Route path="/members/edit/:id" element={<MemberEditPage />} />
+
+            <Route path="/employees" element={<Employees />} />            
+            <Route path="/employees/new" element={<EmployeeNewPage />} />
+            <Route path="/employees/edit/:id" element={<EmployeeEditPage />} />
+
             <Route path="/logout" element={<Logout />} />
           </Routes> 
           <Toaster />  

@@ -1,5 +1,4 @@
 
-import { PanelsTopLeft } from "lucide-react";
 import { useStore } from "../hooks/use-store";
 import { useSidebar } from "../hooks/use-sidebar";
 import { Button } from "./ui/button";

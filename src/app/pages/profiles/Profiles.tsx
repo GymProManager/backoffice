@@ -31,7 +31,6 @@ const ProfilesPage: React.FC = () => {
 
     useEffect(() => { const fetchCategories = async () => { 
       const data: any = await profileUseCases.getAllProfiles();
-      console.log(data);
       setProduct(data);
     };
       fetchCategories();

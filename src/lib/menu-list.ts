@@ -72,7 +72,7 @@ import {
                 label: "Categorias"
               },              
               {
-                href: "/list",
+                href: "/employees",
                 label: "Listado"
               },
               {
