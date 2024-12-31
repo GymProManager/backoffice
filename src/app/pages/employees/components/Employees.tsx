@@ -9,12 +9,11 @@ import {
     BreadcrumbSeparator
   } from "@/components/ui/breadcrumb";
 import { Exercise } from '@/core/entities/Exercise';
-import { MemberUseCases } from '@/core/UseCases/MemberUseCases';
-import { ApiMemberRepository } from '@/infrastructure/repositories/ApiMemberRepository';
 import { DataTable } from './DataTable';
 import { columns } from './Columns';
 import { ApiEmployeeRepository } from '../infrastructure/EmployeeRepository';
 import EmployeeUseCase from '../domain/usecases/EmployeeUseCase';
+import { off, on } from '@/lib/events';
 
 function getToken() {
   const tokenString = sessionStorage.getItem('token') || "{}";
@@ -32,11 +31,21 @@ const EmployeesPage: React.FC = () => {
       window.location.href = '/login';
     }
 
+    const handleEventDelete = async (eventCustom: any) => {
+      console.log("delete",eventCustom);
+      const data: any = await employeeUseCases.getAll(filter);
+      setProduct(data);
+    };
+
     useEffect(() => { const fetchCategories = async () => { 
       const data: any = await employeeUseCases.getAll({});
       setProduct(data);
     };
       fetchCategories();
+      on("table:delete", handleEventDelete);
+      return () => {
+        off("table:delete", handleEventDelete);
+      }      
     },[]);
 
     const hanleFilterMember = async (value: string) => {

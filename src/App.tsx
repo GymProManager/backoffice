@@ -22,6 +22,7 @@ import ProfileNewPage from './app/pages/profiles/new/page';
 import Employees from '@/app/pages/employees/components/Employees';
 import EmployeeNewPage from '@/app/pages/employees/components/new/page';
 import EmployeeEditPage from '@/app/pages/employees/components/edit/page';
+import EmployeeForm from './app/pages/employees/components/EmployeeForm';
 
 function setToken(userToken:any) {
   sessionStorage.setItem('token', JSON.stringify(userToken));
@@ -74,7 +75,7 @@ function App() {
 
             <Route path="/employees" element={<Employees />} />            
             <Route path="/employees/new" element={<EmployeeNewPage />} />
-            <Route path="/employees/edit/:id" element={<EmployeeEditPage />} />
+            <Route path="/employees/edit/:id" element={<EmployeeForm action="edit"/>} />
 
             <Route path="/logout" element={<Logout />} />
           </Routes> 

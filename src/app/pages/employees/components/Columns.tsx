@@ -24,15 +24,11 @@ import {
   AlertDialogTrigger,
 } from "../../../../components/ui/alert-dialog"
 import { LinkTo } from "../../../../components/ui/LinkButton"
-import { ExerciseUseCases } from "@/core/UseCases/ExerciseUseCases"
-import { ApiExerciseRepository } from "@/infrastructure/repositories/ApiExerciseRepository"
 import { CONFIG } from "@/Config"
-import { MemberUseCases } from "@/core/UseCases/MemberUseCases"
-import { ApiMemberRepository } from "@/infrastructure/repositories/ApiMemberRepository"
 import { ApiEmployeeRepository } from "../infrastructure/EmployeeRepository"
 import EmployeeUseCase from "../domain/usecases/EmployeeUseCase"
-
-
+import { toast, useToast } from "@/hooks/use-toast"
+import { trigger } from "@/lib/events"
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -165,7 +161,7 @@ export const columns: ColumnDef<any>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const data = row.original
       return (
         <>
@@ -192,6 +188,7 @@ export const columns: ColumnDef<any>[] = [
 ]
 
 const DeleteDialog = ({id}:{id:string}) => {
+  const { toast } = useToast();
   return (
     <AlertDialog>
     <AlertDialogTrigger asChild className="text-sm w-full text-left hover:bg-primary hover:text-[#ffffff] rounded-sm">
@@ -209,7 +206,23 @@ const DeleteDialog = ({id}:{id:string}) => {
         <AlertDialogAction className="bg-[#CC7751] text-white"
             onClick={async() => {
               const employeeUseCases = new EmployeeUseCase(new ApiEmployeeRepository());
-              employeeUseCases.delete(id);
+               try {
+                await employeeUseCases.delete(id);
+                trigger("table:delete", id);
+                //setEmployees( employees.filter( employee =>  employee.id !== id));
+                  toast({
+                    title: "Éxito",
+                    description: "Empleado eliminado exitosamente.",
+                    className:"bg-[#518893] text-white"
+                  })   
+               } catch (error) {
+                toast({
+                  title: "Éxito",
+                  description: "Falló la eliminación del empleado.",
+                  className:"bg-[#CC7751] text-white"
+                })
+               }
+              
             }}
         >Borrar</AlertDialogAction>
       </AlertDialogFooter>

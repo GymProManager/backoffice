@@ -38,9 +38,12 @@ import EmployeeUseCase from '../domain/usecases/EmployeeUseCase';
 import { Employee } from '../domain/entities/Employee';
 import EmployeeDTO from '../presentation/dto/EmployeeDTO';
 
-const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: string }) => {
+const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
   const title: string = (action === 'add') ? "Nuevo" : 'Editar';
   
+  const [entity, setEntity] = React.useState<any>({});
+  const { id } = useParams();
+
   const { toast } = useToast();
   const [preview, setPreview] = React.useState<string | ArrayBuffer | null>(entity.miniature);
 
@@ -76,10 +79,10 @@ const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
         }),
         dateStart: z
         .string({
-            required_error: "El nombre del empleado es requerido.",
+            required_error: "La fecha de inicio es requerida.",
             })
             .min(1, {
-            message: "El nombre del empleado debe ser mayor a 2 caracteres.",
+            message: "La fecha de inicio es requerida.",
         }), 
         dateEnd: z
         .string().optional(),
@@ -96,16 +99,22 @@ const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
       })
 
       const form = useForm<z.infer<typeof FormSchema>>({
-        resolver: zodResolver(FormSchema),
-        defaultValues: {
-            firstname: entity.nombre,
-            lastname: entity.apellidos,
-            dateStart: entity.fecha_inicio,
-            dateEnd: entity.fecha_alta,
-            perfil: entity.perfil,
-        }
+        resolver: zodResolver(FormSchema)
       })
-         
+
+      useEffect(() => {
+        if (id) {
+            employeeUseCases.getById(id as string).then((result) => {
+                setEntity(result);
+                form.setValue("firstname", result.nombre);
+                form.setValue("lastname", result.apellidos || "");
+                form.setValue("dateStart", result.fecha_inicio || "");
+                form.setValue("dateEnd", result.fecha_alta || "");
+                form.setValue("perfil", result.perfil || "");
+            });
+        }
+    },[id])
+
       const changeTypeHandler = () => {
         return (value: string) => {
           form.setValue("perfil",value);
@@ -113,6 +122,7 @@ const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
       };
 
       async function onSubmit(data: z.infer<typeof FormSchema>) {
+        console.log("submit",data);
 
           toast({
             title: "Éxito",
@@ -128,6 +138,7 @@ const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
             data.lastname,
             data.dateStart,
             data.dateEnd,
+            "",
             data.perfil
         );
           const _image: Imagens = {
@@ -145,7 +156,7 @@ const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
           } catch (error) {
             console.log("error", error);
           } finally {
-           // window.location.href = `/employees`;
+          //  window.location.href = `/employees`;
           }
 
       }
@@ -374,4 +385,4 @@ const EmployeeFormEdit = ({entity, action = 'add'}: { entity: any, action: strin
     ); 
 };
 
-export default EmployeeFormEdit
+export default EmployeeForm
