@@ -12,222 +12,179 @@ import {
   DropdownMenuTrigger,
 } from "../../../../components/ui/dropdown-menu"
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "../../../../components/ui/alert-dialog"
-import { LinkTo } from "../../../../components/ui/LinkButton"
+
 import { CONFIG } from "@/Config"
-import { ApiEmployeeRepository } from "../infrastructure/EmployeeRepository"
-import EmployeeUseCase from "../domain/usecases/EmployeeUseCase"
-import { toast, useToast } from "@/hooks/use-toast"
-import { trigger } from "@/lib/events"
+import { DataTableRowAction } from "@/types"
+import { Employee } from "../domain/entities/Employee"
+import EmployeeDTO from "../presentation/dto/EmployeeDTO"
+interface GetColumnsProps {
+  setRowAction: React.Dispatch<
+    React.SetStateAction<DataTableRowAction<any> | null>
+  >
+}
 
-export const columns: ColumnDef<any>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+export function getColumns({
+  setRowAction,
+}: GetColumnsProps): ColumnDef<EmployeeDTO>[] {
+  return [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "avatar",
+      header: "Avatar",
+      cell: ({ row }) => {
+        const imageUrl = row.getValue("avatar");
+      
+        return (
+          <>
+          <div className="relative">
+            <img
+              alt={`avatar`}
+              className="aspect-square rounded-md object-cover"
+              height="30"
+              width="30"
+              src={imageUrl ? `${CONFIG.IMAGES_URL}${imageUrl}`: `/assets/images/member.png `}
+            />
+          </div>
+          </>
+        );  
+      },
+    },
+    {
+      accessorKey: "nombre",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+          Nombre
+            <ArrowUpDown size={15} className="ml-2" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div className="capitalize">{row.getValue("nombre")}</div>,
+    },
+    {
+      accessorKey: "apellidos",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+          Apellidos
+            <ArrowUpDown size={15} className="ml-2" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div className="capitalize">{row.getValue("apellidos")}</div>,
+    }, 
+    {
+      accessorKey: "fecha_inicio",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+          Fecha de Inicio
+            <ArrowUpDown size={15} className="ml-2" />
+          </Button>
+        )
+      },
+      cell:({ row }) => {
+        let date : String | null = row.getValue("fecha_inicio");
+        if(row.getValue("fecha_inicio")){
+          date = new Date(row.getValue("fecha_inicio")).toLocaleDateString('es-ES', {
+            day : 'numeric',
+            month : '2-digit',
+            year : 'numeric'
+          }).split(' ').join('-');
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "avatar",
-    header: "Avatar",
-    cell: ({ row }) => {
-      const imageUrl = row.getValue("avatar");
-    
-      return (
-        <>
-        <div className="relative">
-          <img
-            alt={`avatar`}
-            className="aspect-square rounded-md object-cover"
-            height="30"
-            width="30"
-            src={imageUrl ? `${CONFIG.IMAGES_URL}${imageUrl}`: `/assets/images/member.png `}
-          />
-        </div>
-        </>
-      );  
-    },
-  },
-  {
-    accessorKey: "nombre",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-        Nombre
-          <ArrowUpDown size={15} className="ml-2" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div className="capitalize">{row.getValue("nombre")}</div>,
-  },
-  {
-    accessorKey: "apellidos",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-        Apellidos
-          <ArrowUpDown size={15} className="ml-2" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div className="capitalize">{row.getValue("apellidos")}</div>,
-  }, 
-  {
-    accessorKey: "fecha_inicio",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-        Fecha de Inicio
-          <ArrowUpDown size={15} className="ml-2" />
-        </Button>
-      )
-    },
-    cell:({ row }) => {
-      let date : String | null = row.getValue("fecha_inicio");
-      if(row.getValue("fecha_inicio")){
-        date = new Date(row.getValue("fecha_inicio")).toLocaleDateString('es-ES', {
-          day : 'numeric',
-          month : '2-digit',
-          year : 'numeric'
-        }).split(' ').join('-');
-      }
-      return (
-        <div className="capitalize">{date ?? "-"}</div>
-      )
-    },
-  },  
-  {
-    accessorKey: "fecha_alta",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-        Fecha de Alta
-          <ArrowUpDown size={15} className="ml-2" />
-        </Button>
-      )
-    },
-    cell:({ row }) => {
-      let date : String | null = row.getValue("fecha_alta");
-      if(row.getValue("fecha_alta")){
-        date = new Date(row.getValue("fecha_alta")).toLocaleDateString('es-ES', {
-          day : 'numeric',
-          month : '2-digit',
-          year : 'numeric'
-        }).split(' ').join('-');
-      }
-      return (
-        <div className="capitalize">{date ?? "-"}</div>
-      )
-    },
-  },    
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row, table }) => {
-      const data = row.original
-      return (
-        <>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LinkTo to={`/employees/edit/${data.id}`}>Editar</LinkTo>
-            </DropdownMenuItem>
-            <DeleteDialog id={data.id}/>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        </>
-      )
-    },
-  },
-]
-
-const DeleteDialog = ({id}:{id:string}) => {
-  const { toast } = useToast();
-  return (
-    <AlertDialog>
-    <AlertDialogTrigger asChild className="text-sm w-full text-left hover:bg-primary hover:text-[#ffffff] rounded-sm">
-      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Eliminar</DropdownMenuItem>
-    </AlertDialogTrigger>
-    <AlertDialogContent className="border-r-2">
-      <AlertDialogHeader>
-        <AlertDialogTitle>¿Está completamente seguro?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Esto borrará el empleado permanentemente. 
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <AlertDialogFooter>
-        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-        <AlertDialogAction className="bg-[#CC7751] text-white"
-            onClick={async() => {
-              const employeeUseCases = new EmployeeUseCase(new ApiEmployeeRepository());
-               try {
-                await employeeUseCases.delete(id);
-                trigger("table:delete", id);
-                //setEmployees( employees.filter( employee =>  employee.id !== id));
-                  toast({
-                    title: "Éxito",
-                    description: "Empleado eliminado exitosamente.",
-                    className:"bg-[#518893] text-white"
-                  })   
-               } catch (error) {
-                toast({
-                  title: "Éxito",
-                  description: "Falló la eliminación del empleado.",
-                  className:"bg-[#CC7751] text-white"
-                })
-               }
-              
-            }}
-        >Borrar</AlertDialogAction>
-      </AlertDialogFooter>
-    </AlertDialogContent>
-  </AlertDialog>
-  );
-};
-
+        return (
+          <div className="capitalize">{date ?? "-"}</div>
+        )
+      },
+    },  
+    {
+      accessorKey: "fecha_alta",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+          Fecha de Alta
+            <ArrowUpDown size={15} className="ml-2" />
+          </Button>
+        )
+      },
+      cell:({ row }) => {
+        let date : String | null = row.getValue("fecha_alta");
+        if(row.getValue("fecha_alta")){
+          date = new Date(row.getValue("fecha_alta")).toLocaleDateString('es-ES', {
+            day : 'numeric',
+            month : '2-digit',
+            year : 'numeric'
+          }).split(' ').join('-');
+        }
+        return (
+          <div className="capitalize">{date ?? "-"}</div>
+        )
+      },
+    },    
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        return (
+          <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onSelect={() => setRowAction({ row, type: "update" })}
+              >
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() => setRowAction({ row, type: "delete" })}
+              >
+                Borrar
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          </>
+        )
+      },
+    }
+  ]
+}

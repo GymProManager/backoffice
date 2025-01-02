@@ -20,8 +20,6 @@ import Profiles from './app/pages/profiles/Profiles';
 import ProfileMemberEditPage from './app/pages/profiles/edit/page';
 import ProfileNewPage from './app/pages/profiles/new/page';
 import Employees from '@/app/pages/employees/components/Employees';
-import EmployeeNewPage from '@/app/pages/employees/components/new/page';
-import EmployeeEditPage from '@/app/pages/employees/components/edit/page';
 import EmployeeForm from './app/pages/employees/components/EmployeeForm';
 
 function setToken(userToken:any) {
@@ -74,8 +72,8 @@ function App() {
             <Route path="/members/edit/:id" element={<MemberEditPage />} />
 
             <Route path="/employees" element={<Employees />} />            
-            <Route path="/employees/new" element={<EmployeeNewPage />} />
-            <Route path="/employees/edit/:id" element={<EmployeeForm action="edit"/>} />
+            <Route path="/employees/new" element={<EmployeeForm action="add" />} />
+            <Route path="/employees/edit/:id" element={<EmployeeForm action="edit" />} />
 
             <Route path="/logout" element={<Logout />} />
           </Routes> 

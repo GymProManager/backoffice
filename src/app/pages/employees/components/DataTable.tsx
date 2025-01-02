@@ -12,6 +12,7 @@ import {
     useReactTable,
     VisibilityState,
     PaginationState,
+    Row,
   } from "@tanstack/react-table"
 
   import {
@@ -23,7 +24,7 @@ import {
     TableRow
   } from "@/components/ui/table"
 
-    import React, { useState } from "react"
+    import React, { useEffect, useState } from "react"
     import { Input } from "@/components/ui/input"
     import {
         DropdownMenu,
@@ -32,21 +33,45 @@ import {
         DropdownMenuTrigger,
         DropdownMenuLabel,
         DropdownMenuSeparator,
+        DropdownMenuItem,
       } from "../../../../components/ui/dropdown-menu"
 import { Button } from "../../../../components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getColumns } from "./Columns";
+import { DataTableRowAction } from "@/types";
+import { Employee } from "../domain/entities/Employee";
+import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../../../components/ui/alert-dialog"
+import { ApiEmployeeRepository } from "../infrastructure/EmployeeRepository";
+import EmployeeUseCase from "../domain/usecases/EmployeeUseCase";
+import { toSentenceCase } from "@/lib/utils";
+import { useNavigate } from 'react-router-dom';
+import EmployeeDTO from "../presentation/dto/EmployeeDTO";
 
   interface DataTableProps<onChangeFilter,TData, TValue> {
     onChangeFilter: (value: string) => void, 
-    columns: ColumnDef<TData, TValue>[]
+    onDelete: (id: string) => void,
     data: TData[]
   }
 
   export function DataTable<onChangeFilter,TData, TValue>({
     onChangeFilter,
-    columns,
+    onDelete,
     data,
   }: DataTableProps<onChangeFilter,TData, TValue>) {
+
+    const navigate = useNavigate();
+
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] =  React.useState<VisibilityState>({})
@@ -56,6 +81,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
         pageSize: 10,
       })
     const [filterMember, setFilterMember] = useState('enable');
+
+    const [rowAction, setRowAction] =  React.useState<DataTableRowAction<EmployeeDTO> | null>(null)
+    
+    const columns: ColumnDef<any>[] = React.useMemo(
+      () => getColumns({ setRowAction }),
+      [setRowAction]
+    )
 
     const table = useReactTable({
         data,
@@ -79,6 +111,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
        setFilterMember(value);
        onChangeFilter(value);
     };
+
+    useEffect(() => {
+      if (rowAction?.type == 'update') {
+        navigate('/employees/edit/' + rowAction?.row.original?.id);
+      }
+    },[rowAction]);
 
     return (
       <>
@@ -133,7 +171,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
                         column.toggleVisibility(!!value)
                         }
                     >
-                        {column.id}
+                        {toSentenceCase(column.id)}
                     </DropdownMenuCheckboxItem>
                     )
                 })}
@@ -240,10 +278,41 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
             </Button>              
         </div>       
       </div>
-
+      <DeleteDialog 
+          open={rowAction?.type === "delete"}
+          onOpenChange={() => setRowAction(null)}
+          rowsSelected={rowAction?.row.original ? [rowAction?.row.original] : []} 
+          onDelete={onDelete}
+        />
       </>        
     )
-
   }
   
-  
+  const  DeleteDialog = (
+    { open, rowsSelected , onOpenChange, onDelete}
+    :
+    { open: boolean, rowsSelected: Row<any>["original"][] , onOpenChange: (open: boolean) => void, onDelete: (id: string) => void }
+    ) => {
+    const [showModal, setShowModal] = React.useState(false);
+
+    useEffect(() => {
+      setShowModal(open);
+    },  [open]);  
+
+    return (
+      <AlertDialog open={showModal} onOpenChange={setShowModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Está completamente seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+                Esto borrará el empleado permanentemente. 
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => onOpenChange(false)}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => onDelete(rowsSelected?.[0]?.id as string)}>Borrar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+  }

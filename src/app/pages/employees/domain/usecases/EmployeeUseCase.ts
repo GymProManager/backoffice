@@ -26,8 +26,10 @@ class EmployeeUseCase {
     return all;
   }
 
-  async update(id: string,productDTO: EmployeeDTO): Promise<EmployeeDTO> {
+  async update(id: string, productDTO: EmployeeDTO): Promise<EmployeeDTO> {
     const product = EmployeeMapper.toEntity(productDTO);
+    console.log("update",product);
+    
     const updatedProduct = await this.repository.update(id,product);
     return EmployeeMapper.toDTO(updatedProduct);
   }

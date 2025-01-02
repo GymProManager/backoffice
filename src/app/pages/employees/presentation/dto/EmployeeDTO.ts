@@ -7,7 +7,6 @@ class EmployeeDTO {
       public fecha_alta?: string ,
       public telefono?: string,
       public perfil?: string,
-      public perfil_socio?: string,
       public foto?: string      
     ) {}
   }

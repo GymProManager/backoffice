@@ -19,7 +19,7 @@ export class ApiEmployeeRepository implements IEmployeeRepository {
             employee.fecha_inicio = (employee.fecha_inicio && employee.fecha_inicio.split('T')[0]) ?? null;
             employee.fecha_alta = (employee.fecha_alta && employee.fecha_alta.split('T')[0]) ?? null;
             employee.avatar = !employee.avatar ? `/assets/images/member.png` : `${CONFIG.IMAGES_URL}${employee.avatar}`;
-            employee.perfil = employee.perfil_socio;
+            employee.perfil = employee.perfil;
             return employee;
         });
         return  adapterData[0]; 
@@ -31,6 +31,7 @@ export class ApiEmployeeRepository implements IEmployeeRepository {
     } 
 
     async update(id: string, employee: Employee): Promise<Employee>{ 
+        console.log("update-repository",employee);
         try {
             await axios.put(`${CONFIG.API_URL}/empleado/${id}`, employee); 
         } catch (error: any) {

@@ -27,7 +27,7 @@ import {  z } from "zod"
 import { useToast } from '@/hooks/use-toast';
 import { useDropzone } from "react-dropzone";
 import { ImagePlus } from "lucide-react";
-import {  useParams } from 'react-router-dom';
+import {  useNavigate, useParams } from 'react-router-dom';
 import { ApiMediaRepository } from '@/infrastructure/repositories/ApiMediaRepository';
 import { MediaImageUseCases } from '@/core/UseCases/MediaImageUseCases';
 import { Imagens } from '@/core/entities/Imagens';
@@ -42,7 +42,9 @@ const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
   const title: string = (action === 'add') ? "Nuevo" : 'Editar';
   
   const [entity, setEntity] = React.useState<any>({});
+  
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { toast } = useToast();
   const [preview, setPreview] = React.useState<string | ArrayBuffer | null>(entity.miniature);
@@ -59,9 +61,7 @@ const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
             setPerfil(result);
         })
     },[])
-
-    const param: any = useParams();
-
+    
     const FormSchema = z.object({
         firstname: z
         .string({
@@ -105,6 +105,7 @@ const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
       useEffect(() => {
         if (id) {
             employeeUseCases.getById(id as string).then((result) => {
+                console.log("getById",result);
                 setEntity(result);
                 form.setValue("firstname", result.nombre);
                 form.setValue("lastname", result.apellidos || "");
@@ -122,8 +123,6 @@ const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
       };
 
       async function onSubmit(data: z.infer<typeof FormSchema>) {
-        console.log("submit",data);
-
           toast({
             title: "Éxito",
             description: "Socio guardado exitosamente.",
@@ -144,19 +143,19 @@ const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
           const _image: Imagens = {
             miniature: data.miniature
           }
-          let id: string  = param.id;
+          let newID: string = id as string;
           if (action === 'add'){
            const _member: Employee = await employeeUseCases.create(employeetDTO);
-           id = _member._id as string;  
+            newID = _member._id as string;  
           } else {
-            await employeeUseCases.update(param.id,employeetDTO);
+            await employeeUseCases.update(id as string, employeetDTO);
           }
           try {
-            await mediaImageUseCases.uploadImage("member", id, _image);  
+            await mediaImageUseCases.uploadImage("member", newID, _image);  
           } catch (error) {
             console.log("error", error);
           } finally {
-          //  window.location.href = `/employees`;
+            navigate('/employees');
           }
 
       }
@@ -289,7 +288,7 @@ const EmployeeForm = ({ action = 'add'}: {  action: string }) => {
                                                 render={({ field }) => (
                                                     <FormItem>
                                                         <FormLabel>Perfil</FormLabel>
-                                                        <Select onValueChange={changeTypeHandler()} defaultValue={field.value}>
+                                                        <Select onValueChange={changeTypeHandler()} defaultValue={field.value} value={field.value}>
                                                             <FormControl>
                                                             <SelectTrigger>
                                                                 <SelectValue placeholder="Seleccione el Perfil" />
